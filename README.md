@@ -1,5 +1,7 @@
 # BQJavaAPI
 
+Last updated: May 23, 2025 at 12:04 PM
+
 A Java Spring Boot application for processing BigQuery data and updating it with information fetched from an external API.
 
 ## Overview
