@@ -38,6 +38,7 @@ out/
 
 ### Credentials ###
 config/gcp-credentials.json
+config/gcp-credentials.json.backup
 
 ### Java ###
 # Compiled class file
