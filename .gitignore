@@ -36,6 +36,9 @@ out/
 ### VS Code ###
 .vscode/
 
+### Credentials ###
+config/gcp-credentials.json
+
 ### Java ###
 # Compiled class file
 *.class
