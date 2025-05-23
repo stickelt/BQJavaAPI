@@ -70,10 +70,59 @@ This allows testing the application workflow without an actual API endpoint. The
 
 ## Usage
 
-1. Configure your BigQuery settings in `application.yaml`
-2. Point it to your existing BigQuery table (with 89,000+ records)
-3. Run as a Spring Boot application: `./gradlew bootRun`
-4. The application will process records in batches, update them if an ASPN_ID is found
+1. Configure your BigQuery settings in profile-specific YAML files
+2. Create a directory for your credentials: `mkdir -p config`
+3. Copy your GCP credentials file to the config directory
+
+### Running the Application
+
+The application now has configurable environments using Spring profiles:
+
+#### Run with Local Profile (Default)
+
+```bash
+./gradlew bootRun
+```
+
+This will use settings from `application-local.yaml` which points to your personal GCP project.
+
+#### Run with Development Profile
+
+```bash
+./gradlew bootRun --args='--spring.profiles.active=dev'
+```
+
+#### Run with QA Profile
+
+```bash
+./gradlew bootRun --args='--spring.profiles.active=qa'
+```
+
+#### Run with Production Profile
+
+```bash
+./gradlew bootRun --args='--spring.profiles.active=prod'
+```
+
+#### Using Environment Variables
+
+You can override any configuration property using environment variables:
+
+```bash
+export BQ_PROJECT_ID=your-project-id
+export BQ_DATASET=your_dataset
+export BQ_TABLE=your_table
+./gradlew bootRun
+```
+
+### Processing Mode
+
+The application is now configured to:
+
+1. Process exactly 1000 records at a time from BigQuery
+2. Make parallel API calls using a thread pool (configurable concurrency)
+3. Update records in BigQuery when an ASPN_ID is found
+4. Provide detailed benchmarking information in the logs
 
 ## Build
 

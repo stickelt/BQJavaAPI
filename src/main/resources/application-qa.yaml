@@ -1,0 +1,33 @@
+# QA Environment Configuration for BQJavaAPI
+
+# Spring Configuration
+spring:
+  application:
+    name: bq-java-api
+
+# Server Configuration
+server:
+  port: 8081
+      
+# BigQuery Configuration - QA Environment
+google:
+  project:
+    id: ${BQ_PROJECT_ID:your-qa-project-id}
+  credentials:
+    path: ${BQ_CREDENTIALS_PATH:/config/qa-gcp-credentials.json}
+
+bigquery:
+  dataset: ${BQ_DATASET:bq_transactions_qa}
+  table: ${BQ_TABLE:aspn_data_qa}
+
+# Processing Configuration
+app:
+  batch-size: 800  # Larger batch size for QA testing
+  concurrency: 10  # Higher concurrency for QA server
+  
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.example.bqjavaapi: INFO
+    com.google.cloud.bigquery: WARN

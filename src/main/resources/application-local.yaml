@@ -1,0 +1,36 @@
+# Local Environment Configuration for BQJavaAPI
+
+# Spring Configuration
+spring:
+  application:
+    name: bq-java-api
+
+# Server Configuration
+server:
+  port: 8081
+      
+# BigQuery Configuration - Your Personal Setup
+google:
+  project:
+    id: jovial-engine-458300-n6
+  credentials:
+    path: ./config/gcp-credentials.json
+
+bigquery:
+  dataset: kafka_bq_transactions
+  table: kafka_messages
+
+# Processing Configuration
+app:
+  batch-size: 100  # Smaller batch for local testing
+  concurrency: 5   # Lower concurrency for local machine
+  flush-interval-ms: 5000
+  
+# Detailed Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.example.bqjavaapi: DEBUG
+    com.google.cloud.bigquery: DEBUG
+    com.google.api.client.http: DEBUG
+    com.google.cloud: DEBUG

@@ -3,8 +3,11 @@ package com.example.bqjavaapi;
 import com.google.cloud.bigquery.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,9 +15,25 @@ import java.util.List;
 public class BigQueryService {
     private static final Logger logger = LoggerFactory.getLogger(BigQueryService.class);
     private final BigQuery bigQuery;
+    
+    private final String projectId;
+    private final String dataset;
+    private final String table;
+    private final int batchSize;
 
-    public BigQueryService(BigQuery bigQuery) {
+    public BigQueryService(BigQuery bigQuery, 
+                         @Value("${google.project.id}") String projectId,
+                         @Value("${bigquery.dataset}") String dataset,
+                         @Value("${bigquery.table}") String table,
+                         @Value("${app.batch-size:1000}") int batchSize) {
         this.bigQuery = bigQuery;
+        this.projectId = projectId;
+        this.dataset = dataset;
+        this.table = table;
+        this.batchSize = batchSize;
+        
+        logger.info("Initialized BigQueryService with project={}, dataset={}, table={}, batchSize={}",
+                projectId, dataset, table, batchSize);
     }
 
     /**
@@ -22,16 +41,27 @@ public class BigQueryService {
      * @param limit maximum number of records to fetch
      * @return List of Records with UUID and RxDataId
      */
-    public List<Record> fetchRecordsNeedingAspnId(int limit) {
-        logger.info("Fetching up to {} records with null/empty ASPN_ID", limit);
+    public List<Record> fetchRecordsNeedingAspnId(Integer limit) {
+        // Use configured batch size if no limit is provided
+        int queryLimit = (limit != null) ? limit : batchSize;
+        logger.info("Fetching up to {} records with null/empty ASPN_ID", queryLimit);
         
-        String query = "SELECT uuid, rx_data_id FROM `your_project.your_dataset.your_table` " +
-                       "WHERE (ASPN_ID IS NULL OR ASPN_ID = '') " + 
+        // Start timing the query execution
+        Instant startTime = Instant.now();
+        
+        // Use the configured project, dataset and table
+        String fullTableName = String.format("`%s.%s.%s`", projectId, dataset, table);
+        
+        // Build the query using the parameters from configuration
+        String query = String.format("SELECT uuid, rx_data_id FROM %s " +
+                       "WHERE (aspn_id IS NULL OR aspn_id != 0) " + 
                        "AND rx_data_id IS NOT NULL " +
-                       "LIMIT @limit";
+                       "LIMIT @limit", fullTableName);
 
+        logger.debug("Executing query: {}", query);
+        
         QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query)
-                .addNamedParameter("limit", QueryParameterValue.int64(limit))
+                .addNamedParameter("limit", QueryParameterValue.int64(queryLimit))
                 .build();
 
         List<Record> records = new ArrayList<>();
@@ -42,7 +72,13 @@ public class BigQueryService {
                 String rxDataId = row.get("rx_data_id").getStringValue();
                 records.add(new Record(uuid, rxDataId));
             });
-            logger.info("Retrieved {} records from BigQuery", records.size());
+            
+            // Calculate and log the query execution time
+            Instant endTime = Instant.now();
+            Duration duration = Duration.between(startTime, endTime);
+            
+            logger.info("Retrieved {} records from BigQuery in {} ms", 
+                     records.size(), duration.toMillis());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.error("Query execution interrupted", e);
@@ -60,10 +96,18 @@ public class BigQueryService {
     public boolean updateAspnId(String uuid, String aspnId) {
         logger.info("Updating record {} with ASPN_ID: {}", uuid, aspnId);
         
-        String query = "UPDATE `your_project.your_dataset.your_table` " +
-                       "SET ASPN_ID = @aspnId " +
-                       "WHERE uuid = @uuid";
+        // Start timing the update operation
+        Instant startTime = Instant.now();
+        
+        // Use the configured project, dataset and table
+        String fullTableName = String.format("`%s.%s.%s`", projectId, dataset, table);
+        
+        String query = String.format("UPDATE %s " +
+                       "SET aspn_id = @aspnId " +
+                       "WHERE uuid = @uuid", fullTableName);
 
+        logger.debug("Executing update query: {}", query);
+        
         QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query)
                 .addNamedParameter("aspnId", QueryParameterValue.string(aspnId))
                 .addNamedParameter("uuid", QueryParameterValue.string(uuid))
@@ -74,11 +118,15 @@ public class BigQueryService {
             Job job = bigQuery.create(jobInfo);
             job = job.waitFor();
 
+            // Calculate and log the update execution time
+            Instant endTime = Instant.now();
+            Duration duration = Duration.between(startTime, endTime);
+            
             if (job.getStatus().getError() == null) {
-                logger.info("Successfully updated record {}", uuid);
+                logger.info("Successfully updated record {} in {} ms", uuid, duration.toMillis());
                 return true;
             } else {
-                logger.error("Error updating record {}: {}", uuid, job.getStatus().getError());
+                logger.error("Error updating record {}: {} (after {} ms)", uuid, job.getStatus().getError(), duration.toMillis());
                 return false;
             }
         } catch (InterruptedException e) {

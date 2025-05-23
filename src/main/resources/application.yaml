@@ -2,35 +2,85 @@
 spring:
   application:
     name: bq-java-api
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
 
-# BigQuery configuration
-google:
-  project:
-    id: your-google-project-id
-  # credentials:
-  #   path: /path/to/your/credentials.json
-  # If credentials path is not set, default application credentials will be used
-
-# API configuration
-api:
-  base-url: https://mock-api.example.com/api
-
-# Processing configuration
+# Common configurations for all environments
 app:
   batch-size: 1000
   concurrency: 10
 
-# Logging configuration
+# Common API configuration (mock implementation)
+api:
+  base-url: https://mock-api.example.com/api
+
+# Common logging configuration
 logging:
   level:
     root: INFO
     com:
       example:
         bqjavaapi: INFO
-    # Set to DEBUG for more detailed logs
-    # com.example.bqjavaapi: DEBUG
 
-# BigQuery dataset and table configuration
+---
+# Local development environment (your personal laptop)
+spring:
+  config:
+    activate:
+      on-profile: local
+
+# Local BigQuery Configuration  
+google:
+  project:
+    id: ${BQ_PROJECT_ID:your-local-project-id}
+  credentials:
+    path: ${BQ_CREDENTIALS_PATH:${user.home}/gcp-credentials.json}
+
 bigquery:
-  dataset: your_dataset
-  table: your_table
+  dataset: ${BQ_DATASET:your_local_dataset}
+  table: ${BQ_TABLE:your_local_table}
+
+---
+# Development environment
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+google:
+  project:
+    id: ${BQ_PROJECT_ID:your-dev-project-id}
+
+bigquery:
+  dataset: ${BQ_DATASET:your_dev_dataset}
+  table: ${BQ_TABLE:your_dev_table}
+
+---
+# QA environment
+spring:
+  config:
+    activate:
+      on-profile: qa
+
+google:
+  project:
+    id: ${BQ_PROJECT_ID:your-qa-project-id}
+
+bigquery:
+  dataset: ${BQ_DATASET:your_qa_dataset}
+  table: ${BQ_TABLE:your_qa_table}
+
+---
+# Production environment
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+google:
+  project:
+    id: ${BQ_PROJECT_ID:your-prod-project-id}
+
+bigquery:
+  dataset: ${BQ_DATASET:your_prod_dataset}
+  table: ${BQ_TABLE:your_prod_table}
