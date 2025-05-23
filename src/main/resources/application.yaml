@@ -1,0 +1,36 @@
+# Application configuration
+spring:
+  application:
+    name: bq-java-api
+
+# BigQuery configuration
+google:
+  project:
+    id: your-google-project-id
+  # credentials:
+  #   path: /path/to/your/credentials.json
+  # If credentials path is not set, default application credentials will be used
+
+# API configuration
+api:
+  base-url: https://mock-api.example.com/api
+
+# Processing configuration
+app:
+  batch-size: 1000
+  concurrency: 10
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    com:
+      example:
+        bqjavaapi: INFO
+    # Set to DEBUG for more detailed logs
+    # com.example.bqjavaapi: DEBUG
+
+# BigQuery dataset and table configuration
+bigquery:
+  dataset: your_dataset
+  table: your_table

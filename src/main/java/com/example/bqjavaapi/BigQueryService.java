@@ -22,11 +22,11 @@ public class BigQueryService {
      * @param limit maximum number of records to fetch
      * @return List of Records with UUID and RxDataId
      */
-    public List<Record> fetchRecordsNeedingAspId(int limit) {
-        logger.info("Fetching up to {} records with null/empty ASPIN_ID", limit);
+    public List<Record> fetchRecordsNeedingAspnId(int limit) {
+        logger.info("Fetching up to {} records with null/empty ASPN_ID", limit);
         
         String query = "SELECT uuid, rx_data_id FROM `your_project.your_dataset.your_table` " +
-                       "WHERE (ASPIN_ID IS NULL OR ASPIN_ID = '') " + 
+                       "WHERE (ASPN_ID IS NULL OR ASPN_ID = '') " + 
                        "AND rx_data_id IS NOT NULL " +
                        "LIMIT @limit";
 
@@ -54,18 +54,18 @@ public class BigQueryService {
     /**
      * Updates a record in BigQuery with the ASPIN_ID
      * @param uuid the unique identifier for the record
-     * @param aspinId the ASPIN_ID to update
+     * @param aspnId the ASPN_ID to update
      * @return true if update was successful
      */
-    public boolean updateAspinId(String uuid, String aspinId) {
-        logger.info("Updating record {} with ASPIN_ID: {}", uuid, aspinId);
+    public boolean updateAspnId(String uuid, String aspnId) {
+        logger.info("Updating record {} with ASPN_ID: {}", uuid, aspnId);
         
         String query = "UPDATE `your_project.your_dataset.your_table` " +
-                       "SET ASPIN_ID = @aspinId " +
+                       "SET ASPN_ID = @aspnId " +
                        "WHERE uuid = @uuid";
 
         QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query)
-                .addNamedParameter("aspinId", QueryParameterValue.string(aspinId))
+                .addNamedParameter("aspnId", QueryParameterValue.string(aspnId))
                 .addNamedParameter("uuid", QueryParameterValue.string(uuid))
                 .build();
 

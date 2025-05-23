@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class BqJavaApiApplication implements CommandLineRunner {
 
     @Autowired
-    private AspenIdUpdater aspenIdUpdater;
+    private AspnIdUpdater aspnIdUpdater;
 
     public static void main(String[] args) {
         SpringApplication.run(BqJavaApiApplication.class, args);
@@ -17,7 +17,7 @@ public class BqJavaApiApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        aspenIdUpdater.runBatchJob();
+        aspnIdUpdater.runBatchJob();
         // Exit after processing - since this will be run as a job
         // System.exit(0);
     }
