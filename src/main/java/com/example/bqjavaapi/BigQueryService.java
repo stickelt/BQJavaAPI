@@ -109,7 +109,7 @@ public class BigQueryService {
         logger.debug("Executing update query: {}", query);
         
         QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query)
-                .addNamedParameter("aspnId", QueryParameterValue.string(aspnId))
+                .addNamedParameter("aspnId", QueryParameterValue.int64(Long.parseLong(aspnId.replace("ASPN_", ""))))
                 .addNamedParameter("uuid", QueryParameterValue.string(uuid))
                 .build();
 
