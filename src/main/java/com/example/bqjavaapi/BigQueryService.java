@@ -108,8 +108,19 @@ public class BigQueryService {
 
         logger.debug("Executing update query: {}", query);
         
+        // Extract the numeric part from the ASPN_ID string (e.g., "ASPN_123456" -> 123456)
+        String numericPart = aspnId.replace("ASPN_", "");
+        long aspnIdValue = 0;
+        try {
+            aspnIdValue = Long.parseLong(numericPart);
+            logger.debug("Converting ASPN_ID '{}' to numeric value: {}", aspnId, aspnIdValue);
+        } catch (NumberFormatException e) {
+            logger.error("Failed to parse ASPN_ID numeric part: '{}'", numericPart, e);
+            return false;
+        }
+        
         QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query)
-                .addNamedParameter("aspnId", QueryParameterValue.int64(Long.parseLong(aspnId.replace("ASPN_", ""))))
+                .addNamedParameter("aspnId", QueryParameterValue.int64(aspnIdValue))
                 .addNamedParameter("uuid", QueryParameterValue.string(uuid))
                 .build();
 

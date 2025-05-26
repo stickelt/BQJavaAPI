@@ -20,6 +20,13 @@ bigquery:
   dataset: kafka_bq_transactions
   table: kafka_messages
 
+# API Configuration
+api:
+  use-mock: true  # Set to false to use the real API endpoint
+  base-url: http://mock-api.example.com  # Replace with real API URL in work environment
+  username: # Add username for real API
+  password: # Add password for real API
+
 # Processing Configuration
 app:
   batch-size: 100  # Smaller batch for local testing
