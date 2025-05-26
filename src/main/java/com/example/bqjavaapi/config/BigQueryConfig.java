@@ -57,21 +57,9 @@ public class BigQueryConfig {
                 } catch (IOException e) {
                     if (isLocalProfile) {
                         // In local profile, use mock credentials if file not found
-                        logger.warn("Credentials file not found: {}. Using mock credentials for local profile.", credentialsPath);
-                        String mockCredentials = "{ " +
-                            "\"type\": \"service_account\", " +
-                            "\"project_id\": \"" + projectId + "\", " +
-                            "\"private_key_id\": \"mock-key-id-12345\", " +
-                            "\"private_key\": \"-----BEGIN PRIVATE KEY-----\\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJTUt9Us8cKj\\nMzEfYyjiWA4R4/M2bS1GB4t7NXp98C3SC6dVMvDuictGeurT8jNbvJZHtCSuYEvu\\nNMoSfm76oqFvAp8Gy0iz5sxjZmSnXyCdPEovGhLa0VzMaQ8s+CLOyS56YyCFGeJZ\\n-----END PRIVATE KEY-----\\n\", " +
-                            "\"client_email\": \"mock-sa@" + projectId + ".iam.gserviceaccount.com\", " +
-                            "\"client_id\": \"123456789012345678901\", " +
-                            "\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\", " +
-                            "\"token_uri\": \"https://oauth2.googleapis.com/token\", " +
-                            "\"auth_provider_x509_cert_url\": \"https://www.googleapis.com/oauth2/v1/certs\", " +
-                            "\"client_x509_cert_url\": \"https://www.googleapis.com/robot/v1/metadata/x509/mock-sa%40" + projectId + ".iam.gserviceaccount.com\" " +
-                        "}";
-                        InputStream mockStream = new ByteArrayInputStream(mockCredentials.getBytes(StandardCharsets.UTF_8));
-                        GoogleCredentials credentials = GoogleCredentials.fromStream(mockStream);
+                        logger.warn("Credentials file not found: {}. Using default credentials for local profile.", credentialsPath);
+                        // Just use application default credentials instead of trying to create mock ones
+                        GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
                         builder.setCredentials(credentials);
                     } else {
                         // Rethrow for non-local profiles
@@ -79,22 +67,9 @@ public class BigQueryConfig {
                     }
                 }
             } else if (isLocalProfile) {
-                // No credentials path specified but in local profile - use mock credentials
-                logger.warn("No credentials path specified. Using mock credentials for local profile.");
-                String mockCredentials = "{ " +
-                    "\"type\": \"service_account\", " +
-                    "\"project_id\": \"" + projectId + "\", " +
-                    "\"private_key_id\": \"mock-key-id-12345\", " +
-                    "\"private_key\": \"-----BEGIN PRIVATE KEY-----\\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJTUt9Us8cKj\\nMzEfYyjiWA4R4/M2bS1GB4t7NXp98C3SC6dVMvDuictGeurT8jNbvJZHtCSuYEvu\\nNMoSfm76oqFvAp8Gy0iz5sxjZmSnXyCdPEovGhLa0VzMaQ8s+CLOyS56YyCFGeJZ\\n-----END PRIVATE KEY-----\\n\", " +
-                    "\"client_email\": \"mock-sa@" + projectId + ".iam.gserviceaccount.com\", " +
-                    "\"client_id\": \"123456789012345678901\", " +
-                    "\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\", " +
-                    "\"token_uri\": \"https://oauth2.googleapis.com/token\", " +
-                    "\"auth_provider_x509_cert_url\": \"https://www.googleapis.com/oauth2/v1/certs\", " +
-                    "\"client_x509_cert_url\": \"https://www.googleapis.com/robot/v1/metadata/x509/mock-sa%40" + projectId + ".iam.gserviceaccount.com\" " +
-                "}";
-                InputStream mockStream = new ByteArrayInputStream(mockCredentials.getBytes(StandardCharsets.UTF_8));
-                GoogleCredentials credentials = GoogleCredentials.fromStream(mockStream);
+                // No credentials path specified but in local profile - use default credentials
+                logger.warn("No credentials path specified. Using default credentials for local profile.");
+                GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
                 builder.setCredentials(credentials);
             }
             // Otherwise, default credentials will be used
